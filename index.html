@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>App Azure Demo con Toggle e Scroll</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body, html {
+      height: 100%;
+      background: linear-gradient(270deg, #6a11cb, #2575fc, #6a11cb);
+      background-size: 600% 600%;
+      animation: gradientShift 15s ease infinite;
+      color: #fff;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      min-height: 100vh;
+      align-items: flex-start;
+    }
+
+    @keyframes gradientShift {
+      0%{background-position:0% 50%;}
+      50%{background-position:100% 50%;}
+      100%{background-position:0% 50%;}
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.12);
+      width: 370px;
+      border-radius: 20px;
+      box-shadow:
+        0 8px 32px 0 rgba(31, 38, 135, 0.37),
+        0 0 15px 0 rgba(0,0,0,0.1);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 20px 30px;
+      font-weight: 600;
+      font-size: 1.8rem;
+      letter-spacing: 1.2px;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      background: rgba(37,117,252,0.2);
+      border-radius: 20px 20px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-header:hover {
+      background: rgba(37,117,252,0.4);
+    }
+
+    .toggle-icon {
+      transition: transform 0.3s ease;
+      font-size: 1.5rem;
+      user-select: none;
+    }
+
+    .toggle-icon.open {
+      transform: rotate(90deg);
+    }
+
+    .panel-content {
+      max-height: 400px; /* altezza fissa con scroll */
+      overflow-y: auto;
+      padding: 25px 30px;
+      transition: max-height 0.5s ease, padding 0.5s ease;
+    }
+
+    .panel-content.closed {
+      max-height: 0;
+      padding: 0 30px;
+      overflow: hidden;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-group svg {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      fill: #2575fc;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      transition: fill 0.3s ease;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="search"] {
+      width: 100%;
+      padding: 14px 50px;
+      border: none;
+      border-radius: 15px;
+      font-size: 1.1rem;
+      color: #333;
+      background: #f0f4ff;
+      box-shadow:
+        inset 0 0 6px #d0d8ff,
+        0 4px 8px rgba(37,117,252,0.15);
+      transition:
+        box-shadow 0.3s ease,
+        background-color 0.3s ease,
+        color 0.3s ease;
+      outline-offset: 4px;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="email"]::placeholder,
+    input[type="tel"]::placeholder,
+    input[type="search"]::placeholder {
+      color: #a0b4ff;
+      font-weight: 500;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="search"]:focus {
+      background-color: #fff;
+      box-shadow:
+        0 0 10px 3px rgba(37,117,252,0.8);
+      color: #000;
+    }
+
+    input[type="text"]:focus + svg,
+    input[type="email"]:focus + svg,
+    input[type="tel"]:focus + svg,
+    input[type="search"]:focus + svg {
+      fill: #185bcc;
+    }
+
+    button {
+      position: relative;
+      overflow: hidden;
+      padding: 16px;
+      border: none;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #2575fc, #6a11cb);
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 15px rgba(37,117,252,0.7);
+      transition: box-shadow 0.3s ease, background 0.3s ease;
+      user-select: none;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #185bcc, #4a0db1);
+      box-shadow: 0 10px 20px rgba(24, 91, 204, 0.85);
+    }
+
+    button:focus-visible {
+      outline: 3px solid #fff;
+      outline-offset: 3px;
+    }
+
+    /* Ripple effect */
+    button::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.3);
+      top: 50%;
+      left: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.4s ease;
+    }
+
+    button:active::after {
+      transform: translate(-50%, -50%) scale(1);
+      transition: transform 0s;
+    }
+
+    /* Tabella risultati */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: #000;
+      background: #f0f4ff;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow:
+        0 5px 15px rgba(37,117,252,0.2);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #d7dce9;
+      font-weight: 500;
+    }
+
+    th {
+      background: #2575fc;
+      color: white;
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 800px) {
+      body, html {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 20px 10px;
+      }
+      .panel {
+        width: 100%;
+        max-width: 400px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="panel" id="insertPanel">
+    <header class="panel-header" tabindex="0">
+      Inserisci i tuoi dati
+      <span class="toggle-icon">&#9656;</span>
+    </header>
+    <div class="panel-content">
+      <form id="dataForm">
+        <div class="input-group">
+          <input type="text" id="nome" placeholder="Nome" required autocomplete="off" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>
+        </div>
+
+        <div class="input-group">
+          <input type="email" id="email" placeholder="Email" required autocomplete="off" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 13l-8-5v10h16v-10l-8 5zm0-12l-12 7 12 7 12-7-12-7z"/></svg>
+        </div>
+
+        <div class="input-group">
+          <input type="tel" id="telefono" placeholder="Numero di telefono" pattern="^\+?\d{7,15}$" title="Inserisci un numero di telefono valido" required autocomplete="off" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.62 10.79a15.466 15.466 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.21c1.21.49 2.53.76 3.88.76a1 1 0 011 1v3.5a1 1 0 01-1 1C10.61 21.93 2.07 13.39 2.07 3a1 1 0 011-1h3.5a1 1 0 011 1c0 1.35.27 2.67.76 3.88a1 1 0 01-.21 1.11l-2.2 2.2z"/></svg>
+        </div>
+
+        <button type="submit">Invia</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="panel" id="searchPanel">
+    <header class="panel-header" tabindex="0">
+      Ricerca nel database
+      <span class="toggle-icon">&#9656;</span>
+    </header>
+    <div class="panel-content closed">
+      <form id="searchForm" style="margin-bottom: 25px;">
+        <div class="input-group" >
+          <input type="search" id="searchInput" placeholder="Cerca per nome o email..." autocomplete="off" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill:#2575fc; width:20px; height:20px;">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14c-2.49 0-4.5-2.01-4.5-4.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+        </div>
+      </form>
+
+      <table id="resultsTable" aria-live="polite">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Telefono</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- risultati di ricerca qui -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <script>
+    const API_BASE = 'http://localhost:3000/api/contatti'; // Cambia se deployato su Azure
+  
+    // Toggle pannelli
+    document.querySelectorAll('.panel-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const content = header.nextElementSibling;
+        const icon = header.querySelector('.toggle-icon');
+        content.classList.toggle('closed');
+        icon.classList.toggle('open');
+      });
+      header.addEventListener('keydown', e => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          header.click();
+        }
+      });
+    });
+  
+    // Invia dati al backend
+    const dataForm = document.getElementById('dataForm');
+    dataForm.addEventListener('submit', async e => {
+      e.preventDefault();
+  
+      const nome = document.getElementById('nome').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const telefono = document.getElementById('telefono').value.trim();
+  
+      if (!nome || !email || !telefono) {
+        alert('Compila tutti i campi!');
+        return;
+      }
+  
+      try {
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nome, email, telefono })
+        });
+  
+        if (!res.ok) throw new Error('Errore nella richiesta');
+  
+        alert('Dati inseriti con successo!');
+        dataForm.reset();
+  
+        // Aggiorna risultati
+        const searchPanelContent = document.querySelector('#searchPanel .panel-content');
+        const toggleIcon = document.querySelector('#searchPanel .toggle-icon');
+        if (searchPanelContent.classList.contains('closed')) {
+          searchPanelContent.classList.remove('closed');
+          toggleIcon.classList.add('open');
+        }
+  
+        renderResultsTable(await searchData(''));
+      } catch (err) {
+        console.error(err);
+        alert('Errore durante l’invio dei dati al server.');
+      }
+    });
+  
+    // Ricerca
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', async () => {
+      const query = searchInput.value.trim();
+      const results = await searchData(query);
+      renderResultsTable(results);
+    });
+  
+    async function searchData(query = '') {
+      try {
+        const res = await fetch(`${API_BASE}?query=${encodeURIComponent(query)}`);
+        if (!res.ok) throw new Error('Errore nella richiesta');
+        return await res.json();
+      } catch (err) {
+        console.error(err);
+        alert('Errore durante la ricerca.');
+        return [];
+      }
+    }
+  
+    function renderResultsTable(data) {
+      const tbody = document.querySelector('#resultsTable tbody');
+      tbody.innerHTML = '';
+  
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#666;">Nessun risultato</td></tr>`;
+        return;
+      }
+  
+      data.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.nome}</td>
+          <td>${item.email}</td>
+          <td>${item.telefono}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+  
+    // Carica risultati iniziali
+    (async () => {
+      renderResultsTable(await searchData(''));
+    })();
+  </script>
+  
+
+</body>
+</html>
