@@ -4,7 +4,7 @@ document.getElementById("dataForm").addEventListener("submit", async (e) => {
     const email = document.getElementById("email").value;
   
     try {
-      const res = await fetch("https://tuo-backend.azurewebsites.net/api/inserisci", {
+      const res = await fetch("https://mysql-iniziale.azurewebsites.net/api/inserisci", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome, email }),
