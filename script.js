@@ -2,7 +2,7 @@ document.getElementById("dataForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const nome = document.getElementById("nome").value;
     const email = document.getElementById("email").value;
-    const email = document.getElementById("telefono").value;
+    const telfono = document.getElementById("telefono").value;
   
     try {
       const res = await fetch("https://backend-webapp-prova-hbenfme5fmcwatbc.northeurope-01.azurewebsites.net", {
