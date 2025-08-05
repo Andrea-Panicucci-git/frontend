@@ -5,7 +5,7 @@ document.getElementById("dataForm").addEventListener("submit", async (e) => {
     const telfono = document.getElementById("telefono").value;
   
     try {
-      const res = await fetch("https://backend-webapp-prova-hbenfme5fmcwatbc.northeurope-01.azurewebsites.net", {
+      const res = await fetch("https://webapp-backend-fre6hwgkfudqfsct.northeurope-01.azurewebsites.net", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome, email, telefono }),
